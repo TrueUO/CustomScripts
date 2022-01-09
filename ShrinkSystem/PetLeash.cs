@@ -123,6 +123,11 @@ namespace Server.Services.ShrinkSystem
                     if (_Leash != null && _Leash.ShrinkCharges > 0)
                     {
                         _Leash.ShrinkCharges--;
+
+                        if (_Leash.ShrinkCharges == 0)
+                        {
+                            from.SendLocalizedMessage(1044038); // You have worn out your tool!
+                        }
                     }
                 }
             }
