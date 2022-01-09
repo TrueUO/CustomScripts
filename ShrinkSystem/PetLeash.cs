@@ -4,22 +4,17 @@ using Server.Targeting;
 
 namespace Server.Services.ShrinkSystem
 {
-    public interface IShrinkTool
-    {
-        int ShrinkCharges { get; set; }
-    }
-
-	public class PetLeash : Item, IShrinkTool
-	{	
-		private int m_Charges = -1; // set to -1 for infinite uses
+    public class PetLeash : Item
+	{
+        private int _Charges = -1; // set to -1 for infinite uses
 
 		[CommandProperty( AccessLevel.GameMaster )]
 		public int ShrinkCharges
 		{
-			get => m_Charges;
+			get => _Charges;
             set
 			{
-				if (m_Charges == 0 || (m_Charges = value) == 0)
+				if (_Charges == 0 || (_Charges = value) == 0)
                 {
                     Delete();
                 }
@@ -48,9 +43,9 @@ namespace Server.Services.ShrinkSystem
 		{
 			base.AddNameProperties(list);
 
-			if (m_Charges >= 0)
+			if (_Charges >= 0)
             {
-                list.Add(1060658, "Charges\t{0}", m_Charges.ToString());
+                list.Add(1060658, "Charges\t{0}", _Charges.ToString());
             }
         }
 
@@ -71,7 +66,7 @@ namespace Server.Services.ShrinkSystem
 			base.Serialize(writer);
 			writer.Write(0);
 
-			writer.Write(m_Charges);
+			writer.Write(_Charges);
 		}
 
 		public override void Deserialize(GenericReader reader)
@@ -79,18 +74,18 @@ namespace Server.Services.ShrinkSystem
 			base.Deserialize(reader);
             reader.ReadInt();
 
-			m_Charges = reader.ReadInt();
+			_Charges = reader.ReadInt();
 		}
 	}
 
     public class ShrinkTarget : Target
 	{
-		private readonly IShrinkTool _ShrinkTool;
+		private readonly PetLeash _Leash;
 
-        public ShrinkTarget(Mobile from, IShrinkTool shrinkTool)
+        public ShrinkTarget(Mobile from, PetLeash leash)
             : base(10, false, TargetFlags.None)
 		{
-			_ShrinkTool = shrinkTool;
+			_Leash = leash;
 
             from.SendMessage("Target the pet you wish to shrink.");
 		}
@@ -125,9 +120,9 @@ namespace Server.Services.ShrinkSystem
                     from.PlaySound(492);
                     from.AddToBackpack(new ShrinkItem(pet));
 
-                    if (_ShrinkTool != null && _ShrinkTool.ShrinkCharges > 0)
+                    if (_Leash != null && _Leash.ShrinkCharges > 0)
                     {
-                        _ShrinkTool.ShrinkCharges--;
+                        _Leash.ShrinkCharges--;
                     }
                 }
             }
